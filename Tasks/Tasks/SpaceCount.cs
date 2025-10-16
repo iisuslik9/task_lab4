@@ -34,55 +34,78 @@ namespace Tasks
             return counts.Sum();
         }
 
-
-
         public async Task<int> CountTotalSpacesInFilesParallel(string folderPath)
         {
-            var files = Directory.GetFiles(folderPath, "*.txt");
-            var tasks = new List<Task<int>>();
-
-            foreach (var file in files)
+            return await CountTotalSpaces(folderPath, async file =>
             {
-                tasks.Add(Task.Run(async () =>
-                {
-                    var content = await fileReader.ReadAllTextAsync(file);
-                    return spaceCounter.CountSpaces(content);
-                }));
-            }
-
-            int[] counts = await Task.WhenAll(tasks);
-            return counts.Sum();
+                var content = await fileReader.ReadAllTextAsync(file);
+                return spaceCounter.CountSpaces(content);
+            });
         }
 
         public async Task<int> CountTotalSpacesByLines(string folderPath)
         {
-            var files = Directory.GetFiles(folderPath, "*.txt");
-            int total = 0;
-
-            foreach (var file in files)
+            return await CountTotalSpaces(folderPath, async file =>
             {
                 var lines = await fileReader.ReadLinesAsync(file);
                 var lineTasks = new List<Task<int>>();
-
                 foreach (var line in lines)
                 {
                     lineTasks.Add(Task.Run(() => spaceCounter.CountSpaces(line)));
                 }
-
-                int[] counts = await Task.WhenAll(lineTasks);
-
-
-                int fileTotal = 0;
-                foreach (var count in counts)
-                {
-                    fileTotal += count;
-                }
-
-                total += fileTotal;
-            }
-
-            return total;
+                var counts = await Task.WhenAll(lineTasks);
+                return counts.Sum();
+            });
         }
+
+
+        //public async Task<int> CountTotalSpacesInFilesParallel(string folderPath)
+        //{
+        //    var files = Directory.GetFiles(folderPath, "*.txt");
+        //    var tasks = new List<Task<int>>();
+
+        //    foreach (var file in files)
+        //    {
+        //        tasks.Add(Task.Run(async () =>
+        //        {
+        //            var content = await fileReader.ReadAllTextAsync(file);
+        //            return spaceCounter.CountSpaces(content);
+        //        }));
+        //    }
+
+        //    int[] counts = await Task.WhenAll(tasks);
+        //    return counts.Sum();
+        //}
+
+        //public async Task<int> CountTotalSpacesByLines(string folderPath)
+        //{
+        //    var files = Directory.GetFiles(folderPath, "*.txt");
+        //    int total = 0;
+
+        //    foreach (var file in files)
+        //    {
+        //        var lines = await fileReader.ReadLinesAsync(file);
+        //        var lineTasks = new List<Task<int>>();
+
+        //        foreach (var line in lines)
+        //        {
+        //            lineTasks.Add(Task.Run(() => spaceCounter.CountSpaces(line)));
+        //        }
+
+        //        int[] counts = await Task.WhenAll(lineTasks);
+
+
+        //        int fileTotal = 0;
+        //        foreach (var count in counts)
+        //        {
+        //            fileTotal += count;
+        //        }
+
+        //        total += fileTotal;
+        //    }
+
+        //    return total;
+        //}
 
     }
 }
