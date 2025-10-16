@@ -19,15 +19,7 @@ namespace Tasks
     {
         static async Task Main(string[] args)
         {
-            var services = new ServiceCollection();
-            services.AddTransient<IFileReader, FileReader>();
-            services.AddTransient<ISpaceCounter, SpaceCounter>();
-            services.AddTransient<SpaceCount>();
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            // экземпляр SpaceCountчерез DI
-            var manager = serviceProvider.GetRequiredService<SpaceCount>();
+            
 
 
             string folderPath = null;
@@ -45,7 +37,19 @@ namespace Tasks
             //IFileReader fileReader = new FileReader();
             //ISpaceCounter spaceCounter = new SpaceCounter();
             //var manager = new SpaceCount(fileReader, spaceCounter);
-         
+
+
+            var services = new ServiceCollection();
+            services.AddTransient<IFileReader, FileReader>();
+            services.AddTransient<ISpaceCounter, SpaceCounter>();
+            services.AddTransient<SpaceCount>();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            // экземпляр SpaceCountчерез DI
+            var manager = serviceProvider.GetRequiredService<SpaceCount>();
+
+
 
             var (timeWholeFiles, resultsWholeFiles) = await RunTimeMeasure.MeasureAsync(
                    () => manager.CountTotalSpacesInFilesParallel(folderPath));
